@@ -1,0 +1,23 @@
+.for {
+    width: 500px;
+    color: black;
+}
+.btn-secondary {
+    
+    background: rgba(0, 0, 0, 0.2);
+}
+.btn-secondary:hover {
+    
+    background: rgba(0, 0, 0, 0.2);
+}
+button {
+    border-radius: 10%;
+}
+.main2 {
+    width: 400px;
+    height: 550px;
+    border-radius: 10px;
+}
+.form-control {
+    width: 300px;
+}
