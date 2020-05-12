@@ -7,6 +7,7 @@ class Signin extends React.Component  {
         this.state = {
             email: '',
             password: '',
+            isValid: ""
         }
     }
 
@@ -30,7 +31,10 @@ class Signin extends React.Component  {
         .then(user => {
             if (user.id) {
                 this.props.loadUser(user)
+                this.setState({isValid: "true"})
                 this.props.onSubmit('home');
+            } else {
+                this.setState({isValid:"Invalid Credentials"});
             }
         })
         
@@ -51,7 +55,8 @@ class Signin extends React.Component  {
                         className="shadow-5 center form-control" 
                         id="exampleInputEmail1" 
                         aria-describedby="emailHelp"
-                        onChange={this.onEmailChange}    
+                        onChange={this.onEmailChange} 
+                        required   
                         />
                 </div>
                 <div className="form-group">
@@ -61,10 +66,11 @@ class Signin extends React.Component  {
                         className="shadow-5 center form-control" 
                         id="exampleInputPassword1"
                         onChange={this.onPasswordChange}
+                        required
                         />
                 </div>
                 <button onClick={this.onButtonSubmit} type="submit" className=" f5 transparent shadow-5 btn btn-secondary">Sign in</button>
-            
+                <p className="tc pa2 yellow">{this.state.isValid}</p>
             </div>
         </div>
             );

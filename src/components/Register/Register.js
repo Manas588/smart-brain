@@ -8,6 +8,7 @@ class Register extends React.Component  {
             name: '',
             email: '',
             password: '',
+            exists: ''
         }
     }
 
@@ -38,6 +39,8 @@ class Register extends React.Component  {
             if (user.id) {
                 this.props.loadUser(user);
                 this.props.onSubmit('home');
+            } else {
+                this.setState({exists: "Unable to register: This might be because the user already exists!"})
             }
         })
         
@@ -78,8 +81,9 @@ class Register extends React.Component  {
                         />
                     </div>
                     <button onClick={this.onButtonSubmit} type="submit" className=" f5 transparent shadow-5 btn btn-secondary">Register</button>
-                
+                    <p className=" pa2 tc yellow">{this.state.exists}</p>
                 </div>
+                
             </div>
             );
         }        

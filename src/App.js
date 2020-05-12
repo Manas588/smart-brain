@@ -1,5 +1,5 @@
 import React from 'react';
-import Clarifai from 'clarifai';
+// import Clarifai from 'clarifai';
 import Particles from 'react-particles-js';
 import Navigation from "./components/Navigation/Navigation";
 import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
@@ -12,9 +12,9 @@ import Signin from "./components/Signin/Signin";
 import './App.css';
 import Register from './components/Register/Register';
 
-const app = new Clarifai.App({
-  apiKey: '73e8326fcef445ff88a7365601479aa5'
- });
+// const app = new Clarifai.App({
+//   apiKey: '73e8326fcef445ff88a7365601479aa5'
+//  });
 
  const param = {
   "absorbers": [],
@@ -285,6 +285,7 @@ const initstate = {
   input: '',
   imageURL: '',
   box: {},
+  messageDisplay: '',
   signin: 'signin',
   user: {
     id: '',
@@ -316,21 +317,25 @@ class App extends React.Component {
   }
 
   postion = (data)=>{
-    const face = data.outputs[0].data.regions[0].region_info.bounding_box;
+    const face = data.outputs[0].data.regions.map(element => element.region_info.bounding_box);
+    
+    //[0].region_info.bounding_box;
     const image = document.getElementById('image');
     const width = image.width;
     const height = image.height;
     return {
-      leftcol: face.left_col*width,
-      toprow: face.top_row*height,
-      rightcol: width - face.right_col*width,
-      bottomrow: height - face.bottom_row*height
+      leftcol: face.map(element => element.left_col*width), 
+      toprow: face.map(element => element.top_row*height),
+      rightcol: face.map(element => width - element.right_col*width),
+      bottomrow: face.map(element => height - element.bottom_row*height)
     };
   }
 
   displayBox = (box)=> {
-    // console.log(box);
+    
     this.setState({box: box});
+    
+    
   }
   
   onInputChange = (event)=> {
@@ -338,7 +343,7 @@ class App extends React.Component {
   }
   onButtonClick = ()=> {
     this.setState({imageURL: this.state.input});
-    console.log(this.state.input);
+    
     // app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.imageURL)
     // app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
     fetch('https://murmuring-savannah-14342.herokuapp.com/imageurl', {
@@ -350,7 +355,8 @@ class App extends React.Component {
         })
       .then(response=>response.json())
     .then((response)=>{
-      if(response) {
+      if (response.outputs[0].data.regions) {
+        
         fetch('https://murmuring-savannah-14342.herokuapp.com/image', {
           method: 'put',
           headers: {'Content-Type': 'application/json'},
@@ -362,10 +368,19 @@ class App extends React.Component {
         .then(count=>{
           this.setState(Object.assign(this.state.user, {entries: count}))
         })
+      
+        this.displayBox( this.postion(response))
+       
+        this.setState({messageDisplay: ''});
+    } else if (response === "unable to work with clarifai") {
+          this.setState({messageDisplay : " Unable to connect to clarifai"});
+    } else {
+      this.setState({messageDisplay: " This picture does not have a face "});
     }
-      this.displayBox( this.postion(response))
+      
     })
-    .catch(err=>console.log(err));
+    .catch(err=>this.setState({messageDisplay: "Error!!!"}));
+    this.setState({box: {} });
   
   }
   onClickClick = (state) =>{
@@ -380,7 +395,7 @@ class App extends React.Component {
 
   render() {
     
-    const {imageURL, box, signin, user} = this.state;
+    const {messageDisplay, imageURL, box, signin, user} = this.state;
    
     if(signin === 'home') {
      
@@ -393,7 +408,7 @@ class App extends React.Component {
         <Rank name={user.name} entries={user.entries}/>
         <ImageLinkForm onInputChange={this.onInputChange} onButtonClick={this.onButtonClick} /> 
      
-        <FaceRecognition box={box} imageURL={imageURL}/>
+        <FaceRecognition box={box} imageURL={imageURL} messageDisplay={messageDisplay}/>
         
 
       </div>

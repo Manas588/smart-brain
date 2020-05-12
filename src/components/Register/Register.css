@@ -15,7 +15,7 @@ button {
 }
 .main2 {
     width: 400px;
-    height: 550px;
+    height: auto;
     border-radius: 10px;
 }
 .form-control {
